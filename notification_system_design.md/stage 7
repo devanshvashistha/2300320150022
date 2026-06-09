@@ -1,0 +1,9 @@
+## Frequently Used Query
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1042
+AND is_read = FALSE
+ORDER BY created_at DESC;
+```

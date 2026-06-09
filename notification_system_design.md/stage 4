@@ -1,0 +1,153 @@
+## Notifications Table
+
+| Column | Type |
+|----------|----------|
+| id | UUID |
+| student_id | BIGINT |
+| title | VARCHAR(255) |
+| message | TEXT |
+| notification_type | VARCHAR(50) |
+| is_read | BOOLEAN |
+| created_at | TIMESTAMP |
+
+
+
+# Stage 4 - Performance Improvement
+
+## Problem Statement
+
+The notification system currently experiences performance issues when a student has over 100,000 notifications.
+
+Challenges:
+
+* Slow page loading
+* Increased database queries
+* High memory usage
+* Poor user experience
+
+---
+
+## Solution 1: Pagination
+
+Instead of loading all notifications at once, load notifications in smaller batches.
+
+Example:
+
+```http id="bvxejl"
+GET /notifications?page=1&limit=20
+```
+
+Benefits:
+
+* Reduced response size
+* Faster API responses
+* Lower memory consumption
+
+---
+
+## Solution 2: Redis Caching
+
+Store frequently accessed notifications in Redis.
+
+Architecture:
+
+```text id="akg4wk"
+Frontend
+   |
+   v
+Redis Cache
+   |
+   v
+Notification Service
+   |
+   v
+PostgreSQL
+```
+
+Benefits:
+
+* Faster read operations
+* Reduced database load
+* Improved scalability
+
+Tradeoff:
+
+* Additional infrastructure cost
+* Cache invalidation complexity
+
+---
+
+## Solution 3: WebSockets
+
+Use WebSocket connections to push notifications in real time.
+
+Workflow:
+
+```text id="8wfysd"
+Notification Created
+        |
+        v
+WebSocket Server
+        |
+        v
+Connected Students
+```
+
+Benefits:
+
+* Real-time updates
+* No continuous polling
+* Better user experience
+
+Tradeoff:
+
+* Persistent connections consume resources
+
+---
+
+## Solution 4: Infinite Scrolling
+
+Load notifications as the user scrolls.
+
+Benefits:
+
+* Faster initial page load
+* Reduced bandwidth usage
+* Improved responsiveness
+
+---
+
+## Solution 5: Lazy Loading
+
+Load notification details only when required.
+
+Benefits:
+
+* Reduced memory usage
+* Faster rendering
+
+---
+
+## Recommended Architecture
+
+```text id="kg1j33"
+React Frontend
+        |
+        v
+API Gateway
+        |
+        v
+Redis Cache
+        |
+        v
+Notification Service
+        |
+        v
+PostgreSQL Database
+```
+
+---
+
+## Conclusion
+
+Combining pagination, Redis caching, WebSockets, infinite scrolling, and lazy loading significantly improves performance and scalability for large-scale notification systems.

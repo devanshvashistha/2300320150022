@@ -1,0 +1,12 @@
+## Indexes
+
+```sql
+CREATE INDEX idx_student_read
+ON notifications(student_id,is_read);
+
+CREATE INDEX idx_created_at
+ON notifications(created_at);
+
+CREATE INDEX idx_type
+ON notifications(notification_type);
+```

@@ -1,0 +1,6 @@
+## Scalability
+
+- Read Replicas
+- Redis Cache
+- Database Partitioning
+- Horizontal Scaling

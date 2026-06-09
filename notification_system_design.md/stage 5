@@ -1,0 +1,208 @@
+## SQL Schema
+
+```sql
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY,
+    student_id BIGINT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+# Stage 5 - Notify All Redesign
+
+## Existing Implementation
+
+```python
+for student in students:
+    send_email(student)
+```
+
+## Problems
+
+### 1. Sequential Processing
+
+Notifications are sent one by one.
+
+For 50,000 students:
+
+```text
+50,000 email operations
+```
+
+This causes high latency.
+
+---
+
+### 2. Single Point of Failure
+
+If one email fails:
+
+```text
+Student 1 -> Success
+Student 2 -> Success
+Student 3 -> Failed
+Student 4 -> Not Processed
+```
+
+The entire process may stop.
+
+---
+
+### 3. Poor Scalability
+
+As the number of students grows:
+
+* Execution time increases
+* Resource consumption increases
+* System becomes slower
+
+---
+
+## Proposed Architecture
+
+Use a Message Queue System.
+
+Technology:
+
+* RabbitMQ
+* Apache Kafka
+
+### Architecture
+
+```text
+HR/Admin Portal
+       |
+       v
+Notification Service
+       |
+       v
+Message Queue
+       |
+       +----------------+
+       |                |
+       v                v
+Email Worker      Push Worker
+       |                |
+       v                v
+Students       Mobile Devices
+```
+
+---
+
+## Workflow
+
+### Step 1
+
+HR submits notification.
+
+```json
+{
+  "type": "Placement",
+  "message": "Microsoft Hiring Drive"
+}
+```
+
+---
+
+### Step 2
+
+Notification Service publishes message to queue.
+
+```python
+queue.publish(notification)
+```
+
+---
+
+### Step 3
+
+Worker services consume messages.
+
+```python
+worker.consume()
+```
+
+---
+
+### Step 4
+
+Notifications are processed asynchronously.
+
+Benefits:
+
+* Faster execution
+* Independent processing
+* Better fault tolerance
+
+---
+
+## Retry Mechanism
+
+If notification delivery fails:
+
+```text
+Attempt 1
+Attempt 2
+Attempt 3
+Dead Letter Queue
+```
+
+Benefits:
+
+* Improved reliability
+* Reduced message loss
+
+---
+
+## Horizontal Scaling
+
+Multiple workers can process messages simultaneously.
+
+Example:
+
+```text
+Queue
+ |
+ +---- Worker 1
+ |
+ +---- Worker 2
+ |
+ +---- Worker 3
+ |
+ +---- Worker 4
+```
+
+Benefits:
+
+* Higher throughput
+* Better scalability
+
+---
+
+## Advantages
+
+### Performance
+
+Notifications sent in parallel.
+
+### Reliability
+
+Failures do not stop the entire process.
+
+### Scalability
+
+Supports millions of notifications.
+
+### Maintainability
+
+Independent worker services.
+
+---
+
+## Conclusion
+
+A queue-based asynchronous architecture using RabbitMQ or Kafka improves performance, reliability, scalability, and fault tolerance for large-scale notification delivery systems.

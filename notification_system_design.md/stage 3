@@ -1,0 +1,90 @@
+# Stage 3 - Query Optimization
+
+## Given Query
+
+```sql
+SELECT *
+FROM notifications
+WHERE student_id = 1042
+AND is_read = FALSE
+ORDER BY created_at ASC;
+```
+
+## Problems
+
+* Full table scan if indexes are not available.
+* Sorting cost increases with dataset size.
+* Query performance degrades for millions of notifications.
+
+## Optimized Index
+
+```sql
+CREATE INDEX idx_notifications
+ON notifications(student_id, is_read, created_at);
+```
+
+## Why This Index?
+
+The query filters using:
+
+```sql
+student_id
+is_read
+```
+
+and sorts using:
+
+```sql
+created_at
+```
+
+A composite index helps the database retrieve records efficiently and reduces sorting overhead.
+
+## Time Complexity
+
+Without Index:
+
+```text
+O(N)
+```
+
+With Composite Index:
+
+```text
+O(log N)
+```
+
+## Query to Find Students Who Received Placement Notifications in Last 7 Days
+
+```sql
+SELECT DISTINCT student_id
+FROM notifications
+WHERE notification_type = 'Placement'
+AND created_at >= NOW() - INTERVAL '7 DAY';
+```
+
+## Why Not Create Indexes on Every Column?
+
+* Increased storage usage
+* Slower insert operations
+* Slower update operations
+* Increased maintenance overhead
+
+Indexes should only be created on frequently queried columns.
+
+## Recommended Indexes
+
+```sql
+CREATE INDEX idx_student_read
+ON notifications(student_id, is_read);
+
+CREATE INDEX idx_created_at
+ON notifications(created_at);
+
+CREATE INDEX idx_type
+ON notifications(notification_type);
+```
+
+## Conclusion
+
+Composite indexing improves query performance, reduces database load, and scales efficiently for large notification datasets.
